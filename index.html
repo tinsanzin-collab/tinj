@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="bo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>སུམ་ཅུ་བའི་སྦྱོང་ཚན། - Tibetan Grammar Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tibetan:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Tibetan', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tibetan-text {
+            font-family: 'Noto Sans Tibetan', sans-serif;
+            line-height: 1.6;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-bounce-short {
+            animation: bounceShort 0.5s;
+        }
+        @keyframes bounceShort {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-amber-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[600px] flex flex-col relative">
+        
+        <!-- Header -->
+        <div class="bg-indigo-700 p-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-white mb-2 tibetan-text">སུམ་ཅུ་བའི་ཕྲད་ཀྱི་རྩེད་མོ།</h1>
+            <p class="text-indigo-200 text-sm md:text-base tibetan-text">སུམ་ཅུ་བའི་གཞུང་ལས་བསྟན་པའི་སློབ་བདེ་བའི་སྦྱོང་ཚན།</p>
+        </div>
+
+        <!-- Main Content Area -->
+        <div id="game-container" class="flex-1 p-6 flex flex-col justify-center items-center">
+            
+            <!-- START SCREEN -->
+            <div id="start-screen" class="w-full space-y-6 text-center fade-in">
+                <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                    <p class="text-lg text-gray-700 tibetan-text">སྦྱོང་ཚན་གདམས་རོགས། (Choose a topic)</p>
+                </div>
+                
+                <div class="grid gap-4">
+                    <button onclick="startGame('dependent')" class="w-full p-6 text-left bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl transition-all group shadow-sm hover:shadow-md">
+                        <h3 class="text-xl font-bold text-indigo-900 group-hover:text-indigo-700 tibetan-text">དང་པོ། གཞན་དབང་ཅན་གྱི་ཕྲད།</h3>
+                        <p class="text-gray-500 mt-2 tibetan-text text-sm">སླར་བསྡུ། ལ་དོན། འབྲེལ་སྒྲ། རྒྱན་སྡུད། ལྷག་བཅས། སོགས། (རྗེས་འཇུག་ལ་ལྟོས་པ།)</p>
+                        <div class="mt-2 text-xs text-indigo-400 font-bold tibetan-text">རྩེ་ཐེངས་རེ་རེར་དྲི་བ་མི་འདྲ་བ་ཡོང་གི་རེད། (Infinite Variations)</div>
+                    </button>
+
+                    <button onclick="startGame('independent')" class="w-full p-6 text-left bg-white border-2 border-emerald-200 hover:border-emerald-500 hover:bg-emerald-50 rounded-xl transition-all group shadow-sm hover:shadow-md">
+                        <h3 class="text-xl font-bold text-emerald-900 group-hover:text-emerald-700 tibetan-text">གཉིས་པ། རང་དབང་ཅན་གྱི་ཕྲད།</h3>
+                        <p class="text-gray-500 mt-2 tibetan-text text-sm">ནི་སྒྲ། དང་སྒྲ། དེ་སྒྲ། བོད་སྒྲ། དགག་སྒྲ། (རང་དབང་གིས་སྦྱོར་ཆོག་པ།)</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- GAME SCREEN -->
+            <div id="quiz-screen" class="hidden w-full flex-col h-full">
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+                    <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+
+                <div class="flex justify-between text-sm text-gray-500 mb-2 font-bold">
+                    <span id="question-count">དྲི་བ། 1/15</span>
+                    <span id="score-display">སྐུགས་ཐོབ། 0</span>
+                </div>
+
+                <!-- Question Card -->
+                <div class="flex-1 flex flex-col justify-center">
+                    <div class="mb-8 text-center">
+                        <span id="category-badge" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600 mb-4 tibetan-text"></span>
+                        <h2 id="question-text" class="text-3xl md:text-5xl font-bold text-gray-800 tibetan-text leading-relaxed tracking-wide">
+                            <!-- Question goes here -->
+                        </h2>
+                        <p id="sub-question-text" class="text-lg text-gray-500 mt-2 tibetan-text"></p>
+                    </div>
+
+                    <!-- Options -->
+                    <div id="options-container" class="grid grid-cols-2 gap-4">
+                        <!-- Buttons injected by JS -->
+                    </div>
+
+                    <!-- Feedback Area -->
+                    <div id="feedback-area" class="hidden mt-6 p-4 rounded-lg text-center tibetan-text animate-bounce-short">
+                        <p id="feedback-text" class="font-bold text-lg"></p>
+                        <button onclick="nextQuestion()" class="mt-3 px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition">རྗེས་མ། (Next)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULT SCREEN -->
+            <div id="result-screen" class="hidden text-center space-y-6 fade-in">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-3xl font-bold text-gray-800 tibetan-text">མཇུག་རྫོགས་སོང་།</h2>
+                <div class="p-6 bg-white rounded-xl shadow-inner border border-gray-200">
+                    <p class="text-gray-600 tibetan-text">ཁྱེད་ཀྱི་སྐུགས་གྲངས།</p>
+                    <p id="final-score" class="text-5xl font-bold text-indigo-600 mt-2">0 / 0</p>
+                </div>
+                <p id="final-message" class="text-lg text-gray-700 tibetan-text"></p>
+                
+                <button onclick="location.reload()" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 tibetan-text">
+                    བསྐྱར་དུ་རྩེ། (Play Again)
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DATA BANK & GENERATOR LOGIC ---
+
+        const vocab = {
+            ga: ["བདག", "ཕྱག", "རྟག", "གཅིག", "སྟག", "དུག", "ཕྲག", "བྲག", "ཞག", "ཐོག", "ཚིག"],
+            nga: ["གང", "བྱུང", "མཐོང", "རང", "གསུང", "མིང", "ཁོང", "དབང", "གཞུང", "ལང", "གྲང"],
+            da: ["ཡོད", "བརྗོད", "བསད", "རྒད", "ནད", "སྐད", "བཤད", "སྡོད", "ཁྱེད", "བཅད", "རྙེད"],
+            na: ["ཡིན", "མིན", "བསྟན", "འཛིན", "དྲན", "སྨན", "མགྲོན", "སྤྱན", "བཞིན", "ཕན", "ཉན", "མགོན"],
+            ba: ["ཁབ", "ཐོབ", "གྲུབ", "ཡབ", "རབ", "ནུབ", "སྒྲུབ", "ཁེབ"],
+            ma: ["ལམ", "གསུམ", "འཛོམ", "བསམ", "ནམ", "གཏམ", "ཁམ", "རིམ", "སྒོམ"],
+            ra: ["ཤར", "འགྱུར", "དཀར", "དམར", "སེར", "འབྱོར", "སྦྱོར", "འབར", "མྱུར"],
+            la: ["ཡུལ", "བལ", "རོལ", "མཇལ", "འབྲེལ", "གསལ", "འཕེལ", "དངུལ", "ཞལ"],
+            sa: ["ཤེས", "གོས", "ལས", "བཞུགས", "བྲིས", "མཛེས", "ཁམས", "རིགས", "ལུགས", "སྤོབས", "དབུས", "བསྟོད", "འབབས"],
+            vowel: ["འགྲོ", "མི", "ང", "བུ", "ལྷ", "རྩེ", "ཟ", "དགའ", "བཀའ", "མདའ", "སྤྲོ", "གོ", "ཆེ", "བདེ", "ཁྱི", "ཇ"]
+        };
+
+        const suffixes = ['ga', 'nga', 'da', 'na', 'ba', 'ma', 'ra', 'la', 'sa', 'vowel'];
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function generateQuestion(category) {
+            // Select a random suffix type based on category weights or uniform random
+            const suffixType = getRandomItem(suffixes);
+            const word = getRandomItem(vocab[suffixType]);
+            
+            let q = { type: category, q: "", sub: "", options: [], correct: 0, hint: "" };
+            let correctOpt = "";
+            let wrongOpt = "";
+            
+            // LOGIC FOR EACH CATEGORY
+            switch(category) {
+                case "སླར་བསྡུ།": // Slardhu
+                    q.q = word + "____";
+                    const slardhuMap = {
+                        ga: "གོ", nga: "ངོ", da: "དོ", na: "ནོ", ba: "བོ", ma: "མོ", 
+                        ra: "རོ", la: "ལོ", sa: "སོ", vowel: "འོ"
+                    };
+                    correctOpt = slardhuMap[suffixType];
+                    
+                    // Generate distractor
+                    const allSlardhu = Object.values(slardhuMap);
+                    do { wrongOpt = getRandomItem(allSlardhu); } while(wrongOpt === correctOpt);
+                    
+                    q.hint = suffixType === 'vowel' 
+                        ? "མཐའ་མེད་ཡིན་པས་ 'འོ' འཐོབ།" 
+                        : `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ཡིན་པས་ '${correctOpt}' འཐོབ།`;
+                    break;
+
+                case "ལ་དོན།": // La Don
+                    q.q = word + "____";
+                    // su, ra, ru, du, na, la, tu
+                    if (suffixType === 'sa') correctOpt = "སུ";
+                    else if (['ga', 'ba'].includes(suffixType)) correctOpt = "ཏུ";
+                    else if (['nga', 'da', 'na', 'ma', 'ra', 'la'].includes(suffixType)) correctOpt = "དུ";
+                    else if (suffixType === 'vowel') correctOpt = "རུ"; // Simplified rule for game
+
+                    // Special case logic for distractor
+                    const ladonOptions = ["སུ", "ཏུ", "དུ", "རུ"];
+                    do { wrongOpt = getRandomItem(ladonOptions); } while(wrongOpt === correctOpt);
+                    
+                    q.hint = `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ལ་ '${correctOpt}' འཐོབ།`;
+                    break;
+
+                case "འབྲེལ་སྒྲ།": // I-ldan (Genitive)
+                    q.q = word + "____";
+                    // gi, kyi, gyi, 'i, yi
+                    if (['ga', 'nga'].includes(suffixType)) correctOpt = "གི";
+                    else if (['da', 'ba', 'sa'].includes(suffixType)) correctOpt = "ཀྱི";
+                    else if (['na', 'ma', 'ra', 'la'].includes(suffixType)) correctOpt = "གྱི";
+                    else if (suffixType === 'vowel') correctOpt = "ཡི"; // or 'i
+
+                    const ildanOptions = ["གི", "ཀྱི", "གྱི", "ཡི"];
+                    do { wrongOpt = getRandomItem(ildanOptions); } while(wrongOpt === correctOpt);
+                    
+                    q.hint = `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ལ་ '${correctOpt}' འཐོབ།`;
+                    break;
+
+                case "ལྷག་བཅས།": // Lhag-bcas
+                    q.q = word + "____";
+                    // te, de, ste
+                    if (['na', 'ra', 'la', 'sa'].includes(suffixType)) correctOpt = "ཏེ";
+                    else if (suffixType === 'da') correctOpt = "དེ";
+                    else correctOpt = "སྟེ"; // ga, nga, ba, ma, vowel
+
+                    const lhagOptions = ["ཏེ", "དེ", "སྟེ"];
+                    do { wrongOpt = getRandomItem(lhagOptions); } while(wrongOpt === correctOpt);
+                    
+                    q.hint = `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ལ་ '${correctOpt}' འཐོབ།`;
+                    break;
+
+                case "བདག་སྒྲ།": // Bdag-sgra
+                    q.q = word + "____";
+                    // pa, po, ba, bo
+                    // ga, da, na, ba, ma, sa -> pa
+                    // nga, 'a, ra, la, vowel -> ba
+                    if (['ga', 'da', 'na', 'ba', 'ma', 'sa'].includes(suffixType)) correctOpt = "པ";
+                    else correctOpt = "བ";
+
+                    wrongOpt = correctOpt === "པ" ? "བ" : "པ";
+                    q.hint = `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ལ་ '${correctOpt}' འཐོབ།`;
+                    break;
+                    
+                 case "གང་སྒྲ།": // Gang-sgra (Indefinite)
+                    q.q = word + "____";
+                    // cig, zhig, shig
+                    // ga, da, ba -> cig
+                    // sa -> shig
+                    // nga, na, ma, ra, la, vowel -> zhig
+                    if (['ga', 'da', 'ba'].includes(suffixType)) correctOpt = "ཅིག";
+                    else if (suffixType === 'sa') correctOpt = "ཤིག";
+                    else correctOpt = "ཞིག";
+
+                    const gangOptions = ["ཅིག", "ཞིག", "ཤིག"];
+                    do { wrongOpt = getRandomItem(gangOptions); } while(wrongOpt === correctOpt);
+                    
+                    q.hint = `རྗེས་འཇུག་ '${suffixTypeToTib(suffixType)}' ལ་ '${correctOpt}' འཐོབ།`;
+                    break;
+            }
+
+            // Randomize options position
+            if (Math.random() > 0.5) {
+                q.options = [correctOpt, wrongOpt];
+                q.correct = 0;
+            } else {
+                q.options = [wrongOpt, correctOpt];
+                q.correct = 1;
+            }
+
+            return q;
+        }
+
+        function suffixTypeToTib(t) {
+            const map = {ga: 'ག', nga: 'ང', da: 'ད', na: 'ན', ba: 'བ', ma: 'མ', ra: 'ར', la: 'ལ', sa: 'ས', vowel: 'མཐའ་མེད'};
+            return map[t];
+        }
+
+        // Static Indepedent Questions (since they rely more on meaning/context)
+        // Expanded list to provide more variety
+        const independentQuestionBank = [
+            { type: "ནི་སྒྲ།", q: "ཁོང་____ དགེ་རྒན་རེད།", sub: "དགར་བ་དང་བརྣན་པ།", options: ["ནི", "གི"], correct: 0, hint: "ནི་སྒྲ་ནི་དགར་བ་དང་བརྣན་པར་འཇུག" },
+            { type: "ནི་སྒྲ།", q: "དཔེ་དེབ་འདི་____ ཡག་པོ་འདུག", sub: "དགར་བ་དང་བརྣན་པ།", options: ["ནི", "ཀྱི"], correct: 0, hint: "ནི་སྒྲ་ནི་དགར་བ་དང་བརྣན་པར་འཇུག" },
+            { type: "ནི་སྒྲ།", q: "བཀྲ་ཤིས་____ སློབ་མ་རེད།", sub: "དགར་བ་དང་བརྣན་པ།", options: ["ནི", "གིས"], correct: 0, hint: "ནི་སྒྲ་ནི་དགར་བ་དང་བརྣན་པར་འཇུག" },
+            { type: "དང་སྒྲ།", q: "ཤ་____ མར།", sub: "སྡུད་འབྱེད་རྒྱུ་མཚན་ཚེ་སྐབས་གདམས་ངག", options: ["དང", "ནས"], correct: 0, hint: "སྡུད་པ་ལ་ དང་ སྒྲ་འཇུག" },
+            { type: "དང་སྒྲ།", q: "ཁ་ལག་ཟ་བ་____ ཞིམ་པོ་བྱུང་།", sub: "རྒྱུ་མཚན།", options: ["དང", "ལས"], correct: 0, hint: "རྒྱུ་མཚན་ལ་ དང་ སྒྲ་འཇུག" },
+            { type: "དང་སྒྲ།", q: "ཉི་མ་____ ཟླ་བ།", sub: "སྡུད་པ།", options: ["དང", "གི"], correct: 0, hint: "སྡུད་པ་ལ་ དང་ སྒྲ་འཇུག" },
+            { type: "དེ་སྒྲ།", q: "མི་____ སུ་རེད།", sub: "དངོས་པོ་སྟོན་པ།", options: ["དེ", "ཏེ"], correct: 0, hint: "ཐ་སྙད་དབང་དུ་བྱས་པའི་ དེ་ སྒྲ།" },
+            { type: "དེ་སྒྲ།", q: "ལོ་____ ལ་ཆར་པ་ཆེན་པོ་བབས།", sub: "དུས་སྟོན་པ།", options: ["དེ", "ནི"], correct: 0, hint: "དུས་འདས་པ་སྟོན་པའི་ དེ་ སྒྲ།" },
+            { type: "བོད་སྒྲ།", q: "____ གྲོགས་པོ་ལགས།", sub: "འབོད་པའི་ཚིག་སྦྱོར་བ།", options: ["ཀྱེ", "ཀྭ"], correct: 0, hint: "འབོད་པ་ལ་ ཀྱེ་ སྦྱོར།" },
+            { type: "འབྱུང་ཁུངས།", q: "ང་ནང་____ ཡོང་བ་ཡིན།", sub: "(ནས / ལས)", options: ["ནས", "ལས"], correct: 0, hint: "འབྱུང་ཁུངས་ལ་ ནས་ ཤུགས་ཆེ།" },
+            { type: "འབྱུང་ཁུངས།", q: "ལྷ་ས་____ ཡོང་།", sub: "འབྱུང་ཁུངས།", options: ["ནས", "ལས"], correct: 0, hint: "འབྱུང་ཁུངས་ལ་ ནས་ ཤུགས་ཆེ།" },
+            { type: "འབྱུང་ཁུངས།", q: "གསེར་____ དངུལ་དཀོན།", sub: "(ནས / ལས)", options: ["ནས", "ལས"], correct: 1, hint: "དགར་བ་ལ་ ལས་ ཤུགས་ཆེ།" },
+            { type: "དགག་སྒྲ།", q: "ལས་ཀ་____ བྱེད།", sub: "མ་འོངས་པ།", options: ["མ", "མི"], correct: 1, hint: "མ་འོངས་པ་ལ་ མི་ འཇུག" },
+            { type: "དགག་སྒྲ།", q: "ལས་ཀ་____ བྱས།", sub: "འདས་པ།", options: ["མ", "མི"], correct: 0, hint: "འདས་པ་ལ་ མ་ འཇུག" },
+            { type: "དགག་སྒྲ།", q: "ཁྱོད་རང་____ འགྲོ།", sub: "མ་འོངས་པ།", options: ["མ", "མི"], correct: 1, hint: "མ་འོངས་པ་ལ་ མི་ འཇུག" }
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let isAnswering = false;
+
+        function startGame(type) {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.add('flex');
+            
+            currentIndex = 0;
+            score = 0;
+            updateScore();
+            
+            if (type === 'dependent') {
+                // Generate 15 random questions dynamically
+                currentQuestions = [];
+                const types = ["སླར་བསྡུ།", "ལ་དོན།", "འབྲེལ་སྒྲ།", "ལྷག་བཅས།", "བདག་སྒྲ།", "གང་སྒྲ།"];
+                for (let i = 0; i < 15; i++) {
+                    const randomType = getRandomItem(types);
+                    currentQuestions.push(generateQuestion(randomType));
+                }
+            } else {
+                // Shuffle independent questions
+                currentQuestions = [...independentQuestionBank]
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 15); // Take 15 random ones
+            }
+            
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = currentQuestions[currentIndex];
+            const total = currentQuestions.length;
+            
+            // Update UI
+            document.getElementById('question-count').innerText = `དྲི་བ། ${currentIndex + 1} / ${total}`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex) / total) * 100}%`;
+            
+            document.getElementById('category-badge').innerText = q.type;
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('sub-question-text').innerText = q.sub || "";
+            
+            // Hide feedback
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('feedback-area').className = "hidden mt-6 p-4 rounded-lg text-center tibetan-text"; 
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+                btn.className = `p-6 text-2xl font-bold bg-white border-2 border-gray-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-400 transition-all shadow-sm tibetan-text focus:outline-none`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            isAnswering = true;
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (!isAnswering) return;
+            isAnswering = false;
+
+            const q = currentQuestions[currentIndex];
+            const isCorrect = selectedIndex === q.correct;
+            
+            const optionsContainer = document.getElementById('options-container');
+            const buttons = optionsContainer.getElementsByTagName('button');
+            
+            // Disable all buttons and show correct answer
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                buttons[i].classList.remove('hover:bg-indigo-50', 'hover:border-indigo-400'); // Remove hover effects
+                if (i === q.correct) {
+                    buttons[i].classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
+                    if (i !== selectedIndex) {
+                         buttons[i].classList.add('ring-2', 'ring-emerald-400');
+                    }
+                }
+            }
+
+            if (isCorrect) {
+                // btnElement is already colored by the loop above if it was correct
+                score++;
+                showFeedback(true, "འགྲིག་སོང་། (Correct!) " + q.hint);
+            } else {
+                btnElement.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                showFeedback(false, "ནོར་སོང་། (Incorrect) " + q.hint);
+            }
+            
+            updateScore();
+        }
+
+        function showFeedback(isCorrect, text) {
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedbackArea.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+            } else {
+                feedbackArea.classList.add('bg-red-50', 'text-red-800', 'border', 'border-red-200');
+            }
+            
+            document.getElementById('feedback-text').innerText = text;
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < currentQuestions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score-display').innerText = `སྐུགས་ཐོབ། ${score}`;
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.remove('flex');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            document.getElementById('final-score').innerText = `${score} / ${currentQuestions.length}`;
+            
+            const percentage = (score / currentQuestions.length) * 100;
+            let msg = "";
+            if (percentage === 100) msg = "ངོ་མཚར་ཆེ། ཁྱེད་ཀྱིས་ཕྲད་ཚང་མ་མཁྱེན་འདུག (Excellent!)";
+            else if (percentage >= 80) msg = "ཡག་པོ་འདུག མུ་མཐུད་དུ་སྦྱོངས་རོགས། (Good job!)";
+            else if (percentage >= 50) msg = "སེམས་ཤུགས་མ་ཆག ད་དུང་སྦྱོང་བརྡར་དགོས། (Keep practicing!)";
+            else msg = "བསྐྱར་དུ་སྦྱོང་བརྡར་གནང་རོགས། (Try again!)";
+            
+            document.getElementById('final-message').innerText = msg;
+        }
+    </script>
+</body>
+</html>
